@@ -1,0 +1,12 @@
+{
+  "mcp": {
+    "servers": [
+      { "server": "Indeed", "tools": ["search_jobs"] },
+      { "server": "Dice", "tools": ["search_jobs"] },
+      { "server": "ZipRecruiter", "tools": ["search_jobs"] },
+      { "server": "Gmail", "tools": ["search_threads", "get_message"] },
+      { "server": "Google Calendar", "tools": ["list_events"] }
+    ]
+  },
+  "db": {}
+}

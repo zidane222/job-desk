@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hisham's Job Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F8F7; --line:#D5DEDB;
+  --ink:#15201D; --muted:#5A6B66; --accent:#0E6B5A; --accent-ink:#FFFFFF; --accent-soft:#DCEFEA;
+  --new:#B45309; --new-soft:#FCEBD5; --warn:#B42318; --warn-soft:#FBE1DE; --ok:#1D7A3E;
+  --sample:#6B4FA3; --sample-soft:#ECE6F7;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D1412; --surface:#141D1A; --surface-2:#18231F; --line:#27352F;
+    --ink:#E3ECE8; --muted:#8FA39C; --accent:#46C2A4; --accent-ink:#06201A; --accent-soft:#16332C;
+    --new:#F0A04B; --new-soft:#3A2812; --warn:#F2877A; --warn-soft:#3A1A16; --ok:#6CCB8D;
+    --sample:#B9A2E8; --sample-soft:#2A2340;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D1412; --surface:#141D1A; --surface-2:#18231F; --line:#27352F;
+  --ink:#E3ECE8; --muted:#8FA39C; --accent:#46C2A4; --accent-ink:#06201A; --accent-soft:#16332C;
+  --new:#F0A04B; --new-soft:#3A2812; --warn:#F2877A; --warn-soft:#3A1A16; --ok:#6CCB8D;
+  --sample:#B9A2E8; --sample-soft:#2A2340;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px}
+h1{font-family:var(--display);font-size:28px;line-height:1.1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+h2{font-family:var(--display);font-size:18px;margin:0}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 11px;font-size:13px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--warn)}
+.btn:disabled{opacity:.55;cursor:default}
+input,select{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:13px;min-width:0}
+
+/* KPI strip */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mail .from{font-weight:600}
+.mail .snip{grid-column:1;color:var(--muted);font-size:12.5px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pill.reply{background:var(--warn-soft);color:var(--warn)}
+.pill.replied{background:var(--accent-soft);color:var(--accent)}
+.pill.srcpill{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);font-weight:500}
+.lip{display:flex;flex-wrap:wrap;gap:8px}
+.lip a{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.lip a::after{content:"↗";opacity:.6}
+.pill.unread{background:var(--new-soft);color:var(--new)}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.kpi b{font-family:var(--display);font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12.5px}
+.kpi.alert b{color:var(--warn)}
+.kpi.fresh b{color:var(--new)}
+
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.panel-body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.src{font-size:12px;color:var(--muted)}
+.src .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:5px;vertical-align:1px}
+.src .dot.off{background:var(--muted)}
+.src .dot.bad{background:var(--warn)}
+
+/* Feed */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tab{white-space:nowrap;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:4px 10px;font-size:12.5px}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab .n{font-family:var(--mono);opacity:.75;margin-left:4px}
+.tab .x{margin-left:6px;opacity:.6}
+.feed-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.feed-tools label{display:flex;gap:6px;align-items:center}
+.jobs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.job{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-top:1px solid var(--line)}
+.job:first-child{border-top:0}
+.job a.t{color:var(--ink);font-weight:600;text-decoration:none}
+.job a.t:hover{color:var(--accent);text-decoration:underline}
+.job .meta{grid-column:1;color:var(--muted);font-size:12.5px;display:flex;flex-wrap:wrap;gap:4px 10px}
+.job .side{grid-row:1 / span 2;grid-column:2;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.pill{display:inline-block;font-size:11px;font-weight:600;border-radius:999px;padding:1px 7px;letter-spacing:.02em}
+.pill.new{background:var(--new-soft);color:var(--new)}
+.pill.sample{background:var(--sample-soft);color:var(--sample)}
+.pill.due{background:var(--warn-soft);color:var(--warn)}
+.pill.tracked{background:var(--accent-soft);color:var(--accent)}
+.empty,.note{color:var(--muted);font-size:13px;padding:8px 0}
+.note.err{color:var(--warn)}
+.add-search{display:flex;flex-wrap:wrap;gap:6px}
+.add-search input{flex:1 1 140px}
+
+/* Pipeline */
+.funnel{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--surface-2)}
+.funnel i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.board{grid-template-columns:1fr}}
+.col{background:var(--surface-2);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:flex;justify-content:space-between;border-left:3px solid var(--c);padding-left:7px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.card.due{border-color:var(--warn)}
+.card .role{font-weight:600;overflow-wrap:anywhere}
+.card .role a{color:inherit}
+.card .co{color:var(--muted);font-size:12.5px}
+.card .next{font-size:12.5px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.card details summary{cursor:pointer;font-size:12px;color:var(--accent);list-style:none}
+.card details summary::-webkit-details-marker{display:none}
+.edit{display:grid;gap:6px;margin-top:6px}
+.edit .row{display:flex;gap:6px;flex-wrap:wrap}
+.edit .row>*{flex:1 1 110px}
+.addform{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;align-items:end}
+.addform .btn{height:32px}
+.col-empty{font-size:12px;color:var(--muted);padding:2px}
+.closedline{font-size:12.5px;color:var(--muted)}
+
+.slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.slots{grid-template-columns:1fr}}
+.slot{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;color:var(--muted);font-size:13px;background:transparent}
+.slot strong{color:var(--ink);display:block;margin-bottom:2px}
+.banner{background:var(--sample-soft);color:var(--sample);border-radius:8px;padding:8px 12px;font-size:12.5px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+@media (prefers-reduced-motion:no-preference){.card,.job{transition:border-color .15s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Hisham's Job Desk</h1>
+      <div class="sub">Live from Indeed, Dice, ZipRecruiter, Gmail and Calendar. Pipeline saves as you edit. <span id="today" class="mono"></span></div>
+    </div>
+    <div class="src" id="globalStatus"><span class="dot off"></span>Connecting…</div>
+  </header>
+
+  <section class="kpis" aria-label="Summary">
+    <div class="kpi fresh"><b id="kNew">–</b><span>New postings, last 48 h</span></div>
+    <div class="kpi"><b id="kActive">–</b><span>Active applications</span></div>
+    <div class="kpi"><b id="kInterview">–</b><span>Interviews on calendar, next 3 weeks</span></div>
+    <div class="kpi alert"><b id="kDue">–</b><span>Follow-ups due today or overdue</span></div>
+    <div class="kpi alert"><b id="kReply">–</b><span>Recruiter threads awaiting your reply</span></div>
+  </section>
+
+  <section class="panel" aria-labelledby="liPostsTitle">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">LinkedIn · opens in your browser</div>
+        <h2 id="liPostsTitle">Hiring posts</h2>
+      </div>
+      <label class="src" style="display:flex;gap:6px;align-items:center">Posted in
+        <select id="liRange" aria-label="Posted within">
+          <option value="past-24h">past 24 hours</option>
+          <option value="past-week">past week</option>
+          <option value="past-month">past month</option>
+        </select>
+      </label>
+    </div>
+    <div class="panel-body">
+      <div class="lip" id="liPosts"></div>
+      <div class="src">Finds posts like “I'm hiring,” “growing my team” and “join my team” for each saved search, newest first. Found something good? Add it to the pipeline below.</div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <!-- LIVE FEED -->
+    <section class="panel" aria-labelledby="feedTitle">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Live · Indeed, Dice, ZipRecruiter, LinkedIn alerts</div>
+          <h2 id="feedTitle">Fresh openings</h2>
+        </div>
+        <div class="src" id="feedStatus"></div>
+      </div>
+      <div class="panel-body">
+        <div class="tabs" role="tablist" id="tabs"></div>
+        <div class="feed-tools">
+          <label><input type="checkbox" id="hideOld" checked> Hide postings older than 30 days</label>
+          <button class="btn ghost" id="refreshBtn" type="button">Refresh now</button>
+        </div>
+        <ul class="jobs" id="jobs"></ul>
+        <form class="add-search" id="addSearch">
+          <input id="qInput" placeholder="Add a search, e.g. Release Manager" aria-label="Job title or keywords">
+          <input id="locInput" placeholder="Austin, TX" value="Austin, TX" aria-label="Location">
+          <button class="btn" type="submit">Add search</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section class="panel" aria-labelledby="pipeTitle">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Tracked · saved to this page</div>
+          <h2 id="pipeTitle">Application pipeline</h2>
+        </div>
+        <div class="src" id="pipeStatus"></div>
+      </div>
+      <div class="panel-body">
+        <div class="banner" id="sampleBanner" hidden>
+          <span><b>Sample rows.</b> Cards marked SAMPLE are placeholders so you can see how the board works.</span>
+          <button class="btn" id="clearSamples" type="button">Remove sample rows</button>
+        </div>
+        <div class="funnel" id="funnel" aria-hidden="true"></div>
+        <div class="legend" id="legend"></div>
+        <div class="board" id="board"></div>
+        <div class="closedline" id="closedLine"></div>
+        <form class="addform" id="addForm">
+          <input id="aRole" placeholder="Role" required aria-label="Role">
+          <input id="aCompany" placeholder="Company" required aria-label="Company">
+          <select id="aStage" aria-label="Stage"></select>
+          <input id="aNext" placeholder="Next step" aria-label="Next step">
+          <input id="aDate" type="date" aria-label="Next step date">
+          <button class="btn primary" type="submit">Add to pipeline</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="mailTitle">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">Live · Gmail · last 14 days</div>
+        <h2 id="mailTitle">Recruiter inbox</h2>
+      </div>
+      <div class="feed-tools" style="gap:12px">
+        <label><input type="checkbox" id="peopleOnly" checked> Recruiters only (hide job alerts)</label>
+        <span class="src" id="mailStatus"></span>
+      </div>
+    </div>
+    <div class="panel-body">
+      <ul class="jobs" id="mail"></ul>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="calTitle">
+    <div class="panel-head">
+      <div>
+        <div class="eyebrow">Live · Google Calendar · next 3 weeks</div>
+        <h2 id="calTitle">Upcoming interviews</h2>
+      </div>
+      <div class="feed-tools" style="gap:12px">
+        <label><input type="checkbox" id="intOnly" checked> Interviews only</label>
+        <span class="src" id="calStatus"></span>
+      </div>
+    </div>
+    <div class="panel-body"><ul class="jobs" id="cal"></ul></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const STAGES=[
+    {id:"saved",label:"Saved",c:"#8AA39B"},
+    {id:"applied",label:"Applied",c:"#3B82A6"},
+    {id:"screening",label:"Screening",c:"#7A6BC4"},
+    {id:"interview",label:"Interview",c:"#D08A2E"},
+    {id:"offer",label:"Offer",c:"#1D9A5B"},
+    {id:"closed",label:"Closed",c:"#9A6A64"}
+  ];
+  const BOARD_STAGES=["saved","applied","screening","interview","offer"];
+  const FALLBACK_SEARCHES=[{id:"f1",query:"Technical Program Manager",location:"Austin, TX",order:1}];
+  const IND="Indeed", TOOL="search_jobs";
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const safeUrl=u=>/^https:\/\//i.test(u||"")?u:"";
+  const pad=n=>String(n).padStart(2,"0");
+  const todayStr=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+  const addDays=(n)=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+  const fmtDate=s=>{if(!s)return"";const d=new Date(s+"T12:00:00");return isNaN(d)?s:d.toLocaleDateString(undefined,{month:"short",day:"numeric"})};
+  const keyOf=(r,c)=>(String(r||"")+"|"+String(c||"")).toLowerCase().replace(/\s+/g," ").trim();
+  $("today").textContent="· "+new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+
+  const state={searches:[],feeds:{},errors:{},stamps:{},tab:"all",pipeline:[],db:null,mcp:null,watches:{},dbOk:null,mcpOk:null};
+  try{const t=localStorage.getItem("jd.tab");if(t)state.tab=t;}catch(e){}
+
+  /* ---------- Indeed parsing ---------- */
+  function payloadText(res){
+    if(!res)return"";
+    const p=res.payload;
+    if(typeof p==="string")return p;
+    if(p&&typeof p.result==="string")return p.result;
+    const b=(res.content||[]).find(x=>x&&x.type==="text");
+    if(!b)return"";
+    try{const j=JSON.parse(b.text);if(j&&typeof j.result==="string")return j.result;}catch(e){}
+    return b.text;
+  }
+  function parseJobs(text){
+    return text.split("**Job Title:**").slice(1).map(chunk=>{
+      const f={title:chunk.split("\n")[0].trim()};
+      chunk.replace(/\*\*([^*]+?):\*\*\s*(.*)/g,(_,k,v)=>{f[k.trim().toLowerCase()]=v.trim();return"";});
+      const posted=f["posted on"]?new Date(f["posted on"]):null;
+      return {title:f.title,company:f.company||"",location:f.location||"",type:f["job type"]||"",pay:f.compensation||"",url:f["view job url"]||"",posted:posted&&!isNaN(posted)?posted:null,postedRaw:f["posted on"]||""};
+    }).filter(j=>j.title);
+  }
+  const ageDays=d=>d?Math.floor((Date.now()-d.getTime())/864e5):999;
+
+  /* ---------- Feed rendering ---------- */
+  const sources=()=>state.searches.concat([{id:"li",query:"LinkedIn alerts"}]);
+  function trackedKeys(){return new Set(state.pipeline.map(p=>keyOf(p.role,p.company)))}
+  function allJobs(){
+    const seen=new Map();
+    for(const s of sources()){for(const j of (state.feeds[s.id]||[])){const k=keyOf(j.title,j.company);if(!seen.has(k))seen.set(k,{...j,from:s.query});}}
+    return [...seen.values()];
+  }
+  function currentJobs(){
+    let list=state.tab==="all"?allJobs():(state.feeds[state.tab]||[]).map(j=>({...j,from:(sources().find(s=>s.id===state.tab)||{}).query}));
+    if($("hideOld").checked)list=list.filter(j=>ageDays(j.posted)<=30);
+    return list.sort((a,b)=>(b.posted?b.posted.getTime():0)-(a.posted?a.posted.getTime():0));
+  }
+  function renderTabs(){
+    const tabs=[{id:"all",label:"All searches",n:allJobs().length},{id:"li",label:"LinkedIn alerts",n:(state.feeds.li||[]).length}].concat(state.searches.map(s=>({id:s.id,label:s.query,n:(state.feeds[s.id]||[]).length,removable:true})));
+    if(!tabs.some(t=>t.id===state.tab))state.tab="all";
+    $("tabs").innerHTML=tabs.map(t=>`<button class="tab" role="tab" type="button" data-tab="${esc(t.id)}" aria-selected="${t.id===state.tab}">${esc(t.label)}<span class="n">${t.n}</span>${t.removable&&state.db?`<span class="x" data-rm="${esc(t.id)}" title="Remove this search" aria-label="Remove search">×</span>`:""}</button>`).join("");
+  }
+  function renderFeed(){
+    renderTabs();
+    const tracked=trackedKeys();
+    const ids=state.tab==="all"?sources().map(s=>s.id):[state.tab];
+    const errs=ids.map(id=>state.errors[id]).filter(Boolean);
+    const loading=ids.some(id=>!(id in state.feeds)&&!state.errors[id]);
+    const list=currentJobs();
+    let html="";
+    if(!list.length){
+      if(state.mcpOk===false) html=`<li class="note err">Live search can't run in this view. Open this page in Claude to load job results.</li>`;
+      else if(loading) html=`<li class="empty">Loading openings from Indeed, Dice and ZipRecruiter…</li>`;
+      else if(!errs.length) html=`<li class="empty">No postings in the last 30 days for this search.</li>`;
+    }
+    html+=list.map(j=>{
+      const isNew=ageDays(j.posted)<=2, isTracked=tracked.has(keyOf(j.title,j.company)), url=safeUrl(j.url);
+      return `<li class="job">
+        <div>${url?`<a class="t" href="${esc(url)}" target="_blank" rel="noopener">${esc(j.title)}</a>`:`<span class="t">${esc(j.title)}</span>`}</div>
+        <div class="meta"><span>${esc(j.company)}</span><span>${esc(j.location)}</span>${j.pay?`<span class="mono">${esc(j.pay)}</span>`:""}${j.type?`<span>${esc(j.type)}</span>`:""}${j.src?`<span class="pill srcpill">${esc(j.src)}</span>`:""}${state.tab==="all"&&j.from&&j.src!=="LinkedIn"?`<span>“${esc(j.from)}”</span>`:""}</div>
+        <div class="side">${isNew?`<span class="pill new">NEW</span>`:`<span class="mono src">${j.posted?fmtDate(j.posted.toISOString().slice(0,10)):esc(j.postedRaw)}</span>`}
+          ${isTracked?`<span class="pill tracked">Tracked</span>`:(state.db?`<button class="btn" type="button" data-track="${esc(keyOf(j.title,j.company))}">Track</button>`:"")}</div>
+      </li>`;}).join("");
+    html+=errs.map(e=>`<li class="note err">${esc(e)}</li>`).join("");
+    $("jobs").innerHTML=html;
+    const stamps=ids.map(id=>state.stamps[id]).filter(Boolean);
+    if(stamps.length){const t=Math.min(...stamps);$("feedStatus").innerHTML=`<span class="dot${errs.length?" bad":""}"></span>Updated ${new Date(t).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})} · auto every 30 min`;}
+    else if(state.mcpOk!==false)$("feedStatus").innerHTML=`<span class="dot off"></span>Fetching…`;
+    renderKpis();
+  }
+  function errText(e,q,srv){
+    const c=e&&e.code;
+    if(c==="needs_reauth")return `${srv} sign-in expired. Reconnect ${srv} in claude.ai Settings → Connectors.`;
+    if(c==="server_not_connected"||c==="selection_required")return `${srv} isn't connected. Add it in claude.ai Settings → Connectors.`;
+    if(c==="not_in_manifest"||c==="consent_required")return `${srv} access is turned off for this page. Allow it from the page's connector prompt.`;
+    if(c==="blocked_by_policy"||c==="approval_required")return `Your organization's policy blocks ${srv} here.`;
+    if(c==="server_unavailable"||c==="rate_limited")return `${srv} didn't respond for “${q}”. Showing the last results.`;
+    if(c==="tool_error")return `${srv} returned an error for “${q}”: ${e.message||"no details"}`;
+    return `${srv} couldn't load “${q}” (${c||"unknown error"}).`;
+  }
+  const RETRACT=new Set(["needs_reauth","server_not_connected","not_in_manifest","blocked_by_policy","approval_required","consent_required","selection_required"]);
+  const isRemote=loc=>/^remote$/i.test(String(loc||"").trim());
+  const payObj=r=>{const p=r&&r.payload;if(p&&typeof p==="object")return p;if(typeof p==="string"){try{return JSON.parse(p)}catch(e){}}return {}};
+  const money=n=>"$"+Math.round(n/1000)+"k";
+  const SRC=[
+    {key:"indeed",server:"Indeed",tool:"search_jobs",label:"Indeed",
+     input:s=>({search:s.query,location:s.location||"Austin, TX",country_code:"US"}),
+     parse:r=>parseJobs(payloadText(r)).map(j=>({...j,src:"Indeed"}))},
+    {key:"dice",server:"Dice",tool:"search_jobs",label:"Dice",
+     input:s=>isRemote(s.location)?{keyword:s.query,workplace_types:["Remote"],jobs_per_page:15,sort:"datePosted"}:{keyword:s.query,location:s.location||"Austin, TX",jobs_per_page:15,sort:"datePosted"},
+     parse:r=>(payObj(r).data||[]).map(d=>{const pd=d.postedDate?new Date(d.postedDate):null;
+       const loc=(d.jobLocation&&(d.jobLocation.displayName||[d.jobLocation.city,d.jobLocation.region].filter(Boolean).join(", ")))||((d.workplaceTypes||[]).join(" / "))||(d.isRemote?"Remote":"");
+       return {title:d.title||"",company:d.companyName||"",location:loc,type:d.employmentType||"",pay:d.salary&&!/depends/i.test(d.salary)?d.salary:"",url:d.detailsPageUrl||"",posted:pd&&!isNaN(pd)?pd:null,postedRaw:"",src:"Dice"};}).filter(j=>j.title)},
+    {key:"zip",server:"ZipRecruiter",tool:"search_jobs",label:"ZipRecruiter",
+     input:s=>isRemote(s.location)?{job_role:s.query,location_types:["REMOTE"],country_admin_code:"US"}:{job_role:s.query,location:s.location||"Austin, TX",country_admin_code:"US"},
+     parse:r=>(payObj(r).results||[]).map(z=>{const pd=typeof z.days_ago==="number"?new Date(Date.now()-z.days_ago*864e5):null;const sal=z.salary||{};
+       return {title:z.title||"",company:z.company||"",location:z.is_remote?"Remote":(z.location||""),type:z.job_type||"",pay:sal.min_annual?money(sal.min_annual)+(sal.max_annual?"–"+money(sal.max_annual):"")+" a year":"",url:z.job_redirect_url||"",posted:pd,postedRaw:"",src:"ZipRecruiter"};}).filter(j=>j.title)}
+  ];
+  state.sub={};state.subErr={};state.subStamp={};
+  function mergeSearch(id,q){
+    const seen=new Map();let any=false;
+    for(const src of SRC){const list=(state.sub[id]||{})[src.key];if(list){any=true;list.forEach(j=>{const k=keyOf(j.title,j.company);if(!seen.has(k))seen.set(k,j)});}}
+    if(any)state.feeds[id]=[...seen.values()];else delete state.feeds[id];
+    const errs=SRC.map(src=>(state.subErr[id]||{})[src.key]).filter(Boolean);
+    if(errs.length)state.errors[id]=errs.join(" ");else delete state.errors[id];
+    const st=Object.values(state.subStamp[id]||{});if(st.length)state.stamps[id]=Math.min(...st);
+  }
+  function watchSearch(s){
+    if(!state.mcp||state.watches[s.id])return;
+    state.sub[s.id]={};state.subErr[s.id]={};state.subStamp[s.id]={};
+    const offs=SRC.map(src=>state.mcp.watchTool(src.server,src.tool,src.input(s),ev=>{
+      if(ev.type==="data"){
+        try{state.sub[s.id][src.key]=src.parse(ev.result);}catch(e){state.sub[s.id][src.key]=[];}
+        state.subStamp[s.id][src.key]=(ev.result&&ev.result.cache&&ev.result.cache.storedAt)||Date.now();
+        delete state.subErr[s.id][src.key];
+      }else{
+        state.subErr[s.id][src.key]=errText(ev.error,s.query,src.label);
+        if(RETRACT.has(ev.error&&ev.error.code))delete state.sub[s.id][src.key];
+      }
+      mergeSearch(s.id,s.query);renderFeed();
+    },{refetchInterval:30*60*1000,cache:{staleTime:5*60*1000,gcTime:24*60*60*1000}}));
+    state.watches[s.id]={off:()=>offs.forEach(f=>{try{f()}catch(e){}})};
+  }
+  function syncWatches(){
+    const live=new Set(state.searches.map(s=>s.id));
+    for(const id of Object.keys(state.watches)){if(!live.has(id)){state.watches[id].off();delete state.watches[id];delete state.feeds[id];delete state.errors[id];delete state.sub[id];delete state.subErr[id];delete state.subStamp[id];}}
+    state.searches.forEach(watchSearch);
+    renderFeed();renderLiPosts();
+  }
+
+  /* ---------- Pipeline ---------- */
+  function isDue(p){return p.nextDate&&p.stage!=="closed"&&p.nextDate<=todayStr()}
+  function renderPipeline(){
+    const rows=state.pipeline;
+    const by={};STAGES.forEach(s=>by[s.id]=[]);
+    rows.forEach(r=>(by[r.stage]||by.saved).push(r));
+    const total=rows.length||1;
+    $("funnel").innerHTML=STAGES.map(s=>by[s.id].length?`<i style="width:${by[s.id].length/total*100}%;background:${s.c}"></i>`:"").join("");
+    $("legend").innerHTML=STAGES.map(s=>`<span style="--c:${s.c}">${s.label} <b class="mono">${by[s.id].length}</b></span>`).join("");
+    const opts=cur=>STAGES.map(s=>`<option value="${s.id}"${s.id===cur?" selected":""}>${s.label}</option>`).join("");
+    $("board").innerHTML=BOARD_STAGES.map(sid=>{
+      const st=STAGES.find(s=>s.id===sid);
+      const cards=by[sid].sort((a,b)=>(a.nextDate||"9").localeCompare(b.nextDate||"9"));
+      return `<div class="col"><h3 style="--c:${st.c}"><span>${st.label}</span><span class="mono">${cards.length}</span></h3>${cards.length?cards.map(p=>card(p,opts)).join(""):`<div class="col-empty">Nothing here.</div>`}</div>`;
+    }).join("");
+    const closed=by.closed;
+    $("closedLine").textContent=closed.length?`Closed: ${closed.map(p=>p.role+" · "+p.company).join("; ")}`:"";
+    $("sampleBanner").hidden=!rows.some(r=>r.sample);
+    renderKpis();
+  }
+  function card(p,opts){
+    const due=isDue(p), url=safeUrl(p.url);
+    return `<div class="card${due?" due":""}" data-id="${esc(p.id)}">
+      <div class="role">${url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.role)}</a>`:esc(p.role)} ${p.sample?`<span class="pill sample">SAMPLE</span>`:""}</div>
+      <div class="co">${esc(p.company)}${p.source?` · ${esc(p.source)}`:""}</div>
+      ${p.nextStep||p.nextDate?`<div class="next">${due?`<span class="pill due">DUE</span>`:""}<span>${esc(p.nextStep||"Next step")}</span>${p.nextDate?`<span class="mono src">${fmtDate(p.nextDate)}</span>`:""}</div>`:""}
+      <details><summary>Edit</summary>
+        <div class="edit">
+          <div class="row"><select data-f="stage" aria-label="Stage">${opts(p.stage)}</select><input type="date" data-f="nextDate" value="${esc(p.nextDate||"")}" aria-label="Next step date"></div>
+          <input data-f="nextStep" value="${esc(p.nextStep||"")}" placeholder="Next step" aria-label="Next step">
+          <input data-f="notes" value="${esc(p.notes||"")}" placeholder="Notes (recruiter, ATS, pay)" aria-label="Notes">
+          <div class="row"><button class="btn primary" type="button" data-save>Save</button><button class="btn danger" type="button" data-del>Delete</button></div>
+        </div>
+      </details>
+    </div>`;
+  }
+  function renderKpis(){
+    const newCount=allJobs().filter(j=>ageDays(j.posted)<=2).length;
+    $("kNew").textContent=state.searches.length&&Object.keys(state.feeds).length?newCount:"–";
+    const P=state.pipeline;
+    $("kActive").textContent=state.dbOk?P.filter(p=>["applied","screening","interview"].includes(p.stage)).length:"–";
+    $("kDue").textContent=state.dbOk?P.filter(isDue).length:"–";
+  }
+  function setGlobal(){
+    const bits=[];
+    if(state.mcpOk===false)bits.push("Live search off in this view");
+    if(state.dbOk===false)bits.push("Pipeline can't save in this view");
+    $("globalStatus").innerHTML=bits.length?`<span class="dot bad"></span>${esc(bits.join(" · "))}`:(state.mcpOk&&state.dbOk?`<span class="dot"></span>Live`:`<span class="dot off"></span>Connecting…`);
+  }
+
+  /* ---------- Events ---------- */
+  $("aStage").innerHTML=STAGES.filter(s=>s.id!=="closed").map(s=>`<option value="${s.id}"${s.id==="applied"?" selected":""}>${s.label}</option>`).join("");
+  $("hideOld").addEventListener("change",renderFeed);
+  $("tabs").addEventListener("click",async e=>{
+    const rm=e.target.closest("[data-rm]");
+    if(rm&&state.db){e.stopPropagation();const id=rm.dataset.rm;try{await state.db.collection("searches").doc(id).delete();}catch(err){$("feedStatus").textContent="Couldn't remove that search.";}return;}
+    const t=e.target.closest("[data-tab]");if(!t)return;
+    state.tab=t.dataset.tab;try{localStorage.setItem("jd.tab",state.tab)}catch(e){}
+    renderFeed();
+  });
+  $("refreshBtn").addEventListener("click",async()=>{
+    if(!state.mcp)return;
+    $("refreshBtn").disabled=true;
+    for(const src of SRC){try{await state.mcp.invalidate(src.server,src.tool);}catch(e){}}
+    setTimeout(()=>{$("refreshBtn").disabled=false},4000);
+  });
+  $("jobs").addEventListener("click",async e=>{
+    const b=e.target.closest("[data-track]");if(!b||!state.db)return;
+    const j=allJobs().concat(...Object.values(state.feeds)).find(x=>keyOf(x.title,x.company)===b.dataset.track);if(!j)return;
+    b.disabled=true;b.textContent="Adding…";
+    try{
+      await state.db.collection("pipeline").add({role:j.title,company:j.company,url:safeUrl(j.url),location:j.location,pay:j.pay,stage:"saved",nextStep:"Tailor resume and apply",nextDate:addDays(2),source:j.src||"Indeed",notes:"",sample:false,createdAt:Date.now()});
+    }catch(err){b.disabled=false;b.textContent=err&&err.code==="quota_exceeded"?"Board full":"Retry";}
+  });
+  $("addSearch").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const q=$("qInput").value.trim(), loc=$("locInput").value.trim()||"Austin, TX";
+    if(!q||!state.db)return;
+    try{await state.db.collection("searches").add({query:q,location:loc,order:Date.now()});$("qInput").value="";}
+    catch(err){$("feedStatus").textContent="Couldn't save that search.";}
+  });
+  $("addForm").addEventListener("submit",async e=>{
+    e.preventDefault();if(!state.db)return;
+    const d={role:$("aRole").value.trim(),company:$("aCompany").value.trim(),stage:$("aStage").value,nextStep:$("aNext").value.trim(),nextDate:$("aDate").value||"",source:"Manual",url:"",notes:"",sample:false,createdAt:Date.now()};
+    if(!d.role||!d.company)return;
+    try{await state.db.collection("pipeline").add(d);e.target.reset();$("aStage").value="applied";}
+    catch(err){$("pipeStatus").textContent=err&&err.code==="quota_exceeded"?"Pipeline is full. Delete old rows first.":"Couldn't save. Try again.";}
+  });
+  $("board").addEventListener("click",async e=>{
+    const c=e.target.closest(".card");if(!c||!state.db)return;
+    const ref=state.db.collection("pipeline").doc(c.dataset.id);
+    if(e.target.closest("[data-save]")){
+      const patch={};c.querySelectorAll("[data-f]").forEach(el=>patch[el.dataset.f]=el.value);
+      e.target.disabled=true;
+      try{await ref.update(patch);}catch(err){e.target.disabled=false;e.target.textContent="Retry";}
+    }else if(e.target.closest("[data-del]")){
+      const b=e.target.closest("[data-del]");
+      if(b.dataset.armed){try{await ref.delete();}catch(err){b.textContent="Retry";}}
+      else{b.dataset.armed="1";b.textContent="Confirm delete";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="Delete";}},4000);}
+    }
+  });
+  $("clearSamples").addEventListener("click",async e=>{
+    const b=e.currentTarget;
+    if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Confirm: remove samples";return;}
+    b.disabled=true;
+    for(const p of state.pipeline.filter(p=>p.sample)){try{await state.db.collection("pipeline").doc(p.id).delete();}catch(err){}}
+    b.disabled=false;delete b.dataset.armed;b.textContent="Remove sample rows";
+  });
+
+  /* ---------- Gmail ---------- */
+  const GM="Gmail", GTOOL="search_threads";
+  const GQUERY='newer_than:14d in:inbox -category:promotions -category:social (recruiter OR interview OR "your application" OR opportunity OR position OR role OR "job")';
+  const AUTO=/no-?reply|noreply|donotreply|^jobs?@|^info@|alert|notification|updates?@|mailer|^hello@|digest|newsletter|@(indeed|linkedin|ziprecruiter|dice|glassdoor|jobhat|hellohiring)\./i;
+  state.mail=null;state.mailErr="";state.mailStamp=0;
+  function parseThreads(res){
+    const p=res&&res.payload;
+    const obj=typeof p==="string"?(()=>{try{return JSON.parse(p)}catch(e){return{}}})():(p||{});
+    return (obj.threads||[]).map(t=>{
+      const msgs=(t.messages||[]).slice().sort((a,b)=>Number(a.internalDate||0)-Number(b.internalDate||0));
+      const first=msgs[0]||{}, last=msgs[msgs.length-1]||{};
+      const other=msgs.filter(m=>!(m.labelIds||[]).includes("SENT"));
+      const lead=other[other.length-1]||first;
+      const lastIsMine=(last.labelIds||[]).includes("SENT");
+      const unread=msgs.some(m=>(m.labelIds||[]).includes("UNREAD"));
+      const sender=String(lead.sender||"");
+      return {id:t.id,url:t.viewUrl||last.viewUrl||"",subject:first.subject||last.subject||"(no subject)",snippet:last.snippet||"",sender,
+        date:last.date?new Date(last.date):null,automated:AUTO.test(sender.replace(/.*</,"").replace(/>.*/,"")),
+        youReplied:msgs.some(m=>(m.labelIds||[]).includes("SENT")),lastIsMine,unread,count:msgs.length};
+    }).sort((a,b)=>(b.date?b.date.getTime():0)-(a.date?a.date.getTime():0));
+  }
+  const decode=s=>{const t=document.createElement("textarea");t.innerHTML=s;return t.value};
+  function senderName(s){const m=s.match(/^\s*"?([^"<]+?)"?\s*</);if(m)return m[1];const a=s.replace(/[<>]/g,"");return a.split("@")[0]+" @"+(a.split("@")[1]||"")}
+  function awaiting(t){return !t.automated&&!t.lastIsMine&&t.youReplied}
+  function renderMail(){
+    const el=$("mail");
+    if(state.mcpOk===false){el.innerHTML=`<li class="note err">Gmail can't be read in this view. Open this page in Claude.</li>`;return;}
+    if(state.mailErr&&!state.mail){el.innerHTML=`<li class="note err">${esc(state.mailErr)}</li>`;$("kReply").textContent="–";return;}
+    if(!state.mail){el.innerHTML=`<li class="empty">Loading your inbox…</li>`;return;}
+    const people=state.mail.filter(t=>!t.automated);
+    $("kReply").textContent=people.filter(awaiting).length;
+    let list=$("peopleOnly").checked?people:state.mail;
+    list=list.slice().sort((a,b)=>(awaiting(b)-awaiting(a))||((b.date?b.date.getTime():0)-(a.date?a.date.getTime():0)));
+    el.className="jobs mail";
+    el.innerHTML=(list.length?list.map(t=>{
+      const url=safeUrl(t.url);
+      const pill=awaiting(t)?`<span class="pill reply">REPLY NEEDED</span>`:t.lastIsMine?`<span class="pill replied">You replied</span>`:t.unread?`<span class="pill unread">UNREAD</span>`:"";
+      return `<li class="job">
+        <div><span class="from">${esc(decode(senderName(t.sender)))}</span> · ${url?`<a class="t" href="${esc(url)}" target="_blank" rel="noopener">${esc(decode(t.subject))}</a>`:esc(decode(t.subject))}</div>
+        <div class="snip">${esc(decode(t.snippet))}</div>
+        <div class="side">${pill}<span class="mono src">${t.date?t.date.toLocaleDateString(undefined,{month:"short",day:"numeric"}):""}${t.count>1?` · ${t.count} msgs`:""}</span></div>
+      </li>`;}).join(""):`<li class="empty">No recruiter threads in the last 14 days.</li>`)
+      +(state.mailErr?`<li class="note err">${esc(state.mailErr)}</li>`:"");
+    if(state.mailStamp)$("mailStatus").innerHTML=`<span class="dot${state.mailErr?" bad":""}"></span>Updated ${new Date(state.mailStamp).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})} · auto every 15 min`;
+  }
+  function gmailErr(e){
+    const c=e&&e.code;
+    if(c==="needs_reauth")return "Gmail sign-in expired. Reconnect Gmail in claude.ai Settings → Connectors, then reload.";
+    if(c==="server_not_connected"||c==="selection_required")return "Gmail isn't connected for this viewer. Add it in claude.ai Settings → Connectors.";
+    if(c==="not_in_manifest"||c==="consent_required")return "Gmail access is turned off for this page. Allow it from the page's connector prompt.";
+    if(c==="blocked_by_policy"||c==="approval_required")return "Your organization's policy blocks Gmail here.";
+    if(c==="server_unavailable")return "Gmail didn't respond. Showing the last results; it will retry on the next refresh.";
+    if(c==="tool_error")return "Gmail returned an error: "+(e.message||"no details");
+    return "Couldn't load Gmail ("+(c||"unknown error")+").";
+  }
+  $("peopleOnly").addEventListener("change",renderMail);
+  function watchMail(){
+    if(!state.mcp)return renderMail();
+    state.mcp.watchTool(GM,GTOOL,{query:GQUERY,pageSize:30,view:"THREAD_VIEW_MINIMAL"},ev=>{
+      if(ev.type==="data"){state.mail=parseThreads(ev.result);state.mailErr="";state.mailStamp=(ev.result.cache&&ev.result.cache.storedAt)||Date.now();}
+      else{state.mailErr=gmailErr(ev.error);if(RETRACT.has(ev.error&&ev.error.code))state.mail=null;}
+      renderMail();
+    },{refetchInterval:15*60*1000,cache:{staleTime:5*60*1000,gcTime:6*60*60*1000}});
+  }
+
+  /* ---------- LinkedIn (via Gmail job-alert emails) ---------- */
+  const LIQ='from:(jobs-noreply@linkedin.com OR jobalerts-noreply@linkedin.com OR jobs-listings@linkedin.com) newer_than:14d';
+  function parseLinkedIn(body,date){
+    const lines=String(body||"").split(/\r?\n/);const out=[];
+    lines.forEach((ln,i)=>{
+      const m=ln.match(/^\s*View job:\s*(https:\/\/www\.linkedin\.com\/comm\/jobs\/view\/(\d+)\S*)/);
+      if(!m)return;
+      const block=[];
+      for(let k=i-1;k>=0&&block.length<6;k--){const t=lines[k].trim();if(!t||/^-{5,}$/.test(t)||/^https?:/.test(t))break;block.unshift(t);}
+      const info=block.filter(t=>!/^(apply with|easy apply|actively recruiting|be an early applicant|\d+ (school|company) alum|promoted|you.re a top applicant)/i.test(t));
+      if(info.length<2)return;
+      out.push({title:info[0],company:info[1]||"",location:info[2]||"",type:"",pay:"",url:"https://www.linkedin.com/jobs/view/"+m[2]+"/",posted:date,postedRaw:"",src:"LinkedIn",liId:m[2]});
+    });
+    return out;
+  }
+  let liRun=0;
+  function watchLinkedIn(){
+    if(!state.mcp)return;
+    state.mcp.watchTool(GM,GTOOL,{query:LIQ,pageSize:12,view:"THREAD_VIEW_METADATA_ONLY"},async ev=>{
+      if(ev.type==="error"){state.errors.li="LinkedIn alerts: "+gmailErr(ev.error);if(RETRACT.has(ev.error&&ev.error.code))delete state.feeds.li;renderFeed();return;}
+      const run=++liRun;
+      const p=ev.result&&ev.result.payload;const obj=typeof p==="string"?(()=>{try{return JSON.parse(p)}catch(e){return{}}})():(p||{});
+      const msgs=[];(obj.threads||[]).forEach(t=>(t.messages||[]).forEach(m=>{if(!(m.labelIds||[]).includes("SENT"))msgs.push(m)}));
+      msgs.sort((a,b)=>Number(b.internalDate||0)-Number(a.internalDate||0));
+      const seen=new Map();let failed=0;
+      for(const m of msgs.slice(0,12)){
+        try{
+          const r=await state.mcp.callTool(GM,"get_message",{messageId:m.id,messageFormat:"PLAIN_TEXT"},{cache:{staleTime:300000,gcTime:86400000}});
+          const body=(r.payload&&r.payload.plaintextBody)||"";
+          const d=m.date?new Date(m.date):null;
+          parseLinkedIn(body,d).forEach(j=>{if(!seen.has(j.liId))seen.set(j.liId,j)});
+        }catch(e){failed++;if(RETRACT.has(e&&e.code))break;}
+        if(run!==liRun)return;
+      }
+      state.feeds.li=[...seen.values()];
+      state.stamps.li=(ev.result.cache&&ev.result.cache.storedAt)||Date.now();
+      if(!msgs.length)state.errors.li="No LinkedIn job-alert emails in the last 14 days. Turn on LinkedIn job alerts to fill this tab.";
+      else if(failed)state.errors.li=`Couldn't read ${failed} LinkedIn email${failed>1?"s":""}; showing the rest.`;
+      else delete state.errors.li;
+      renderFeed();
+    },{refetchInterval:30*60*1000,cache:{staleTime:5*60*1000,gcTime:24*60*60*1000}});
+  }
+
+  /* ---------- Google Calendar ---------- */
+  const INTRX=/interview|screen|recruit|hiring|panel|onsite|on-site|round|technical|hr call|offer|talent|candidate|position|role/i;
+  state.cal=null;state.calErr="";state.calStamp=0;
+  function dayIso(offset){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+offset);const o=-d.getTimezoneOffset();const sg=o>=0?"+":"-";return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T00:00:00"+sg+pad(Math.floor(Math.abs(o)/60))+":"+pad(Math.abs(o)%60);}
+  function joinLink(ev){
+    if(ev.conferenceUrl)return ev.conferenceUrl;
+    const v=ev.conferenceData&&ev.conferenceData.videoEntryPoint&&ev.conferenceData.videoEntryPoint.uri;if(v)return v;
+    const m=String(ev.description||"").match(/https:\/\/(teams\.microsoft\.com\/(?:meet|l\/meetup-join)\/[^\s<>]+|[\w.-]*zoom\.us\/j\/[^\s<>]+|meet\.google\.com\/[^\s<>]+|[\w.-]*webex\.com\/[^\s<>]+)/);
+    return m?"https://"+m[1]:"";
+  }
+  function orgOf(ev){
+    const emails=[ev.organizer&&ev.organizer.email].concat((ev.attendees||[]).map(a=>a.email)).filter(Boolean);
+    const ext=emails.find(e=>!/@(gmail|googlemail|yahoo|outlook|hotmail|icloud)\./i.test(e)&&!/calendar\.google\.com$/.test(e));
+    if(!ext)return "";const d=ext.split("@")[1].split(".");return d.length>1?d[d.length-2].replace(/^./,c=>c.toUpperCase()):d[0];
+  }
+  function renderCal(){
+    const el=$("cal");
+    if(state.mcpOk===false){el.innerHTML=`<li class="note err">Calendar can't be read in this view. Open this page in Claude.</li>`;return;}
+    if(state.calErr&&!state.cal){el.innerHTML=`<li class="note err">${esc(state.calErr)}</li>`;$("kInterview").textContent="–";return;}
+    if(!state.cal){el.innerHTML=`<li class="empty">Loading your calendar…</li>`;return;}
+    const ints=state.cal.filter(e=>e.isInt);
+    $("kInterview").textContent=ints.length;
+    const list=$("intOnly").checked?ints:state.cal;
+    el.innerHTML=(list.length?list.map(e=>{
+      const soon=e.start&&(e.start-Date.now())<48*36e5;
+      const when=e.start?(e.allDay?e.start.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}):e.start.toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})):"";
+      const jl=safeUrl(e.join), hl=safeUrl(e.link);
+      return `<li class="job">
+        <div>${hl?`<a class="t" href="${esc(hl)}" target="_blank" rel="noopener">${esc(e.title)}</a>`:`<span class="t">${esc(e.title)}</span>`}</div>
+        <div class="meta"><span class="mono">${esc(when)}</span>${e.org?`<span>${esc(e.org)}</span>`:""}${e.where?`<span>${esc(e.where)}</span>`:""}</div>
+        <div class="side">${soon?`<span class="pill due">SOON</span>`:""}${jl?`<a class="btn" href="${esc(jl)}" target="_blank" rel="noopener">Join</a>`:""}</div>
+      </li>`;}).join(""):`<li class="empty">${$("intOnly").checked?"No interviews on your calendar in the next 3 weeks.":"Nothing on your calendar in the next 3 weeks."}</li>`)
+      +(state.calErr?`<li class="note err">${esc(state.calErr)}</li>`:"");
+    if(state.calStamp)$("calStatus").innerHTML=`<span class="dot${state.calErr?" bad":""}"></span>Updated ${new Date(state.calStamp).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})} · auto every 15 min`;
+  }
+  $("intOnly").addEventListener("change",renderCal);
+  function watchCal(){
+    if(!state.mcp)return renderCal();
+    state.mcp.watchTool("Google Calendar","list_events",{startTime:dayIso(0),endTime:dayIso(21),orderBy:"startTime",pageSize:50},ev=>{
+      if(ev.type==="data"){
+        const obj=payObj(ev.result);
+        state.cal=(obj.events||[]).filter(e=>e.status!=="cancelled").map(e=>{
+          const st=e.start&&(e.start.dateTime||e.start.date);const d=st?new Date(e.start.dateTime||e.start.date+"T00:00:00"):null;
+          const title=e.summary||"(untitled event)";
+          return {title,start:d,allDay:!!(e.start&&e.start.date&&!e.start.dateTime),link:e.htmlLink||"",join:joinLink(e),org:orgOf(e),where:e.location&&!/^https?:/.test(e.location)?e.location:"",
+            isInt:INTRX.test(title)||INTRX.test(String(e.description||"").slice(0,400))};
+        }).filter(e=>!e.start||e.start.getTime()>Date.now()-36e5);
+        state.calErr="";state.calStamp=(ev.result.cache&&ev.result.cache.storedAt)||Date.now();
+      }else{
+        state.calErr=errText(ev.error,"your calendar","Google Calendar");
+        if(RETRACT.has(ev.error&&ev.error.code))state.cal=null;
+      }
+      renderCal();
+    },{refetchInterval:15*60*1000,cache:{staleTime:5*60*1000,gcTime:6*60*60*1000}});
+  }
+
+  /* ---------- LinkedIn hiring-post search links ---------- */
+  function liPostUrl(s,range){
+    const where=/^remote$/i.test(String(s.location||"").trim())?'remote':'"'+String(s.location||"Austin, TX").split(",")[0].trim()+'"';
+    const kw='("hiring" OR "growing my team" OR "join my team" OR "we are hiring" OR "open role") AND "'+s.query+'" AND '+where;
+    return "https://www.linkedin.com/search/results/content/?keywords="+encodeURIComponent(kw)+"&datePosted="+encodeURIComponent('"'+range+'"')+"&sortBy="+encodeURIComponent('"date_posted"')+"&origin=FACETED_SEARCH";
+  }
+  function renderLiPosts(){
+    const range=$("liRange").value;
+    const list=state.searches.length?state.searches:FALLBACK_SEARCHES;
+    $("liPosts").innerHTML=list.map(s=>`<a class="btn" href="${esc(liPostUrl(s,range))}" target="_blank" rel="noopener">${esc(s.query)}${/^remote$/i.test(s.location||"")?" · remote":""}</a>`).join("");
+  }
+  try{const r=localStorage.getItem("jd.liRange");if(r)$("liRange").value=r;}catch(e){}
+  $("liRange").addEventListener("change",()=>{try{localStorage.setItem("jd.liRange",$("liRange").value)}catch(e){}renderLiPosts();});
+
+  /* ---------- Boot ---------- */
+  renderFeed();renderPipeline();setGlobal();renderMail();renderCal();renderLiPosts();
+  (async()=>{
+    const cl=window.claude;
+    const [db,mcp]=await Promise.all([cl?cl.use("db").catch(()=>null):null, cl?cl.use("mcp").catch(()=>null):null]);
+    state.db=db;state.mcp=mcp;state.dbOk=!!db;state.mcpOk=!!mcp;setGlobal();
+    watchMail();watchLinkedIn();watchCal();
+    if(db){
+      db.collection("pipeline").onSnapshot(snap=>{
+        state.pipeline=snap.docs.map(d=>({id:d.id,...d.data()}));renderPipeline();renderFeed();
+      },err=>{state.dbOk=false;$("pipeStatus").textContent="Pipeline stopped syncing. Reload to reconnect.";setGlobal();});
+      db.collection("searches").orderBy("order").onSnapshot(snap=>{
+        state.searches=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>s.query);
+        syncWatches();
+      },err=>{state.searches=FALLBACK_SEARCHES;syncWatches();});
+    }else{
+      state.searches=FALLBACK_SEARCHES;syncWatches();
+      $("pipeStatus").textContent="Saving is unavailable in this view.";
+      document.querySelectorAll("#addForm input,#addForm select,#addForm button,#addSearch input,#addSearch button").forEach(el=>el.disabled=true);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
