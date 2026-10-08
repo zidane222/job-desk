@@ -638,7 +638,7 @@ input,select{background:var(--surface);border:1px solid var(--line);border-radiu
   /* ---------- Google Calendar ---------- */
   const INTRX=/interview|screen|recruit|hiring|panel|onsite|on-site|round|technical|hr call|offer|talent|candidate|position|role/i;
   state.cal=null;state.calErr="";state.calStamp=0;
-  function dayIso(offset){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+offset);const o=-d.getTimezoneOffset();const sg=o>=0?"+":"-";return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T00:00:00"+sg+pad(Math.floor(Math.abs(o)/60))+":"+pad(Math.abs(o)%60);}
+  function dayIso(offset){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+offset);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T00:00:00";}
   function joinLink(ev){
     if(ev.conferenceUrl)return ev.conferenceUrl;
     const v=ev.conferenceData&&ev.conferenceData.videoEntryPoint&&ev.conferenceData.videoEntryPoint.uri;if(v)return v;
